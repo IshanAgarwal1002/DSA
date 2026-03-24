@@ -2,7 +2,11 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.List;
+import java.util.Stack;
+
+import util.Utility;
 
 class Solution {
 
@@ -13,7 +17,7 @@ class Solution {
     }
   }
 
-  // https://leetcode.com/problems/two-sum/
+  // Leetcode 1: https://leetcode.com/problems/two-sum/
   public int[] twoSum(int[] nums, int target) {
     ArrayList<Pair<Integer, Integer>> sortedArr = new ArrayList<>();
     for (int i = 0; i < nums.length; i++) {
@@ -68,7 +72,7 @@ class Solution {
   // Leetcode 11: https://leetcode.com/problems/container-with-most-water/
   // Solution 1: Two pointer method
   // Time: O(N), Space: O(1)
-  public int maxArea(int[] height) {
+  public static int maxArea(int[] height) {
     int i = 0, j = height.length - 1, ans = 0;
 
     while (i < j) {
@@ -85,11 +89,11 @@ class Solution {
   // Leetcode 977: https://leetcode.com/problems/squares-of-a-sorted-array/
   // Solution 1: Two pointer method
   // Time: O(N), Space: O(1)
-  public int square(int n) {
+  public static int square(int n) {
     return n * n;
   }
 
-  public int[] sortedSquares(int[] nums) {
+  public static int[] sortedSquares(int[] nums) {
     int n = nums.length, i = 0, j = n - 1, k = n - 1;
     int[] result = new int[n];
 
@@ -107,7 +111,7 @@ class Solution {
   // Leetcode 169: https://leetcode.com/problems/majority-element/description/
   // Solution 1: Hash Map
   // Time: O(N), Space: O(N)
-  public int majorityElement1(int[] nums) {
+  public static int majorityElement1(int[] nums) {
     HashMap<Integer, Integer> m = new HashMap<>();
     int ans = 0, maxCount = 0;
 
@@ -126,7 +130,7 @@ class Solution {
   // Leetcode 169: https://leetcode.com/problems/majority-element/description/
   // Solution 2: Boyer-Moore Majority Vote Algorithm
   // Time: O(N), Space: O(1)
-  public int majorityElement2(int[] nums) {
+  public static int majorityElement2(int[] nums) {
     int ans = 0, maxCount = 0;
 
     for (int n : nums) {
@@ -143,7 +147,7 @@ class Solution {
   // Leetcode 169: https://leetcode.com/problems/majority-element/description/
   // Solution 3: Sorting
   // Time: O(N * log(N)), Space: O(1)
-  public int majorityElement3(int[] nums) {
+  public static int majorityElement3(int[] nums) {
     Arrays.sort(nums);
     int n = nums.length;
     return nums[n / 2];
@@ -152,7 +156,7 @@ class Solution {
   // Leetcode 229: https://leetcode.com/problems/majority-element-ii/description/
   // Solution 1: Hash Map
   // Time: O(N), Space: O(N)
-  public List<Integer> majorityElement21(int[] nums) {
+  public static List<Integer> majorityElement21(int[] nums) {
     HashMap<Integer, Integer> m = new HashMap<>();
 
     for (int n : nums) {
@@ -171,7 +175,7 @@ class Solution {
   // Leetcode 229: https://leetcode.com/problems/majority-element-ii/description/
   // Solution 2: Boyer-Moore Majority Vote Algorithm
   // Time: O(N), Space: O(1)
-  public List<Integer> majorityElement22(int[] nums) {
+  public static List<Integer> majorityElement22(int[] nums) {
     int len = nums.length, majority1 = 0, majority2 = 0, count1 = 0, count2 = 0;
 
     for (int n : nums) {
@@ -209,7 +213,568 @@ class Solution {
     return result;
   }
 
+  // GFG: https://www.geeksforgeeks.org/dsa/given-an-array-of-of-size-n-finds-all-the-elements-that-appear-more-than-nk-times/
+  // Solution 1: Hash Map
+  // Time: O(N), Space: O(N)
+  public static int countOccurence(int[] arr, int k) {
+    // compute array size and frequency threshold
+    int n = arr.length;
+    int x = n / k;
+
+    // store frequency of each element
+    HashMap<Integer, Integer> freq = new HashMap<>();
+    for (int num : arr)
+      freq.put(num, freq.getOrDefault(num, 0) + 1);
+
+    // count elements whose frequency exceeds n/k
+    int count = 0;
+    for (HashMap.Entry<Integer, Integer> e : freq.entrySet())
+      if (e.getValue() > x)
+        count++;
+
+    // return the final count
+    return count;
+  }
+
+  // GFG: https://www.geeksforgeeks.org/dsa/given-an-array-of-of-size-n-finds-all-the-elements-that-appear-more-than-nk-times/
+  // Solution 2: Boyer-Moore Majority Vote Algorithm
+  // Time: O(N * K), Space: O(k)
+  static class EleCount {
+    int e; // Element
+    int c; // Count
+  }
+
+  public static void moreThanNdK(int[] arr, int k) {
+    int n = arr.length;
+
+    // k must be greater than 1 to get some output
+    if (k < 2)
+      return;
+
+    // Step 1: Create a temporary array (contains element and count) of size k-1.
+    // Initialize count of all elements as 0
+    EleCount[] temp = new EleCount[k - 1];
+    for (int i = 0; i < k - 1; i++) {
+      temp[i] = new EleCount();
+      temp[i].e = 0;
+      temp[i].c = 0;
+    }
+
+    // Step 2: Process all elements of input array
+    for (int i = 0; i < n; i++) {
+      int j;
+
+      // If arr[i] is already present in the temp array, then increment its count
+      for (j = 0; j < k - 1; j++) {
+        if (temp[j].e == arr[i]) {
+          temp[j].c += 1;
+          break;
+        }
+      }
+
+      // If arr[i] is not present in temp[]
+      if (j == k - 1) {
+        int l;
+
+        // If there is position available in temp[], then place arr[i] in the first
+        // available position and set count as 1
+        for (l = 0; l < k - 1; l++) {
+          if (temp[l].c == 0) {
+            temp[l].e = arr[i];
+            temp[l].c = 1;
+            break;
+          }
+        }
+
+        // If all the position in the temp[] are filled, then decrease count of every
+        // element by 1
+        if (l == k - 1) {
+          for (l = 0; l < k - 1; l++) {
+            temp[l].c -= 1;
+          }
+        }
+      }
+    }
+
+    // Step 3: Check actual counts of potential candidates in temp[]
+    for (int i = 0; i < k - 1; i++) {
+      // Calculate actual count of elements
+      int ac = 0; // actual count
+      for (int j = 0; j < n; j++) {
+        if (arr[j] == temp[i].e)
+          ac++;
+      }
+
+      // If actual count is more than n/k, then print it
+      if (ac > n / k) {
+        System.out.println("Number: " + temp[i].e
+            + " Count: " + ac);
+      }
+    }
+  }
+
+  // Leetcode 556: https://leetcode.com/problems/next-greater-element-iii/description/
+  // GFG: https://www.geeksforgeeks.org/dsa/find-next-greater-number-set-digits/
+  // Solution 1: 
+  // Time: O(d), Space: O(d)
+  // Explanation:
+  // d = number of digits in n (at most 10 for 32-bit integer)
+  // Visual Summary:
+  // ------------------------------------------------
+  // | Step |	Operation	                    | Time  |
+  // | 1    | Convert int to char array	    | O(d)  |
+  // | 2    | Find pivot from right to left | O(d)  |
+  // | 3    | Swap characters	              | O(d)  |
+  // | 4    | Swap characters	              | O(1)  |
+  // | 5    | Reverse subarray	            | O(d)  |
+  // | 6    | Parse back to int	            | O(d)  |
+  // ------------------------------------------------
+  // Total Time Complexity:	O(d)
+  // Total Space Complexity: O(d) for the char array storage
+  public static void swap(char[] arr, int i, int j) {
+    char temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+
+  public static void reverse(char[] arr, int i, int j) {
+    while (i < j) {
+      swap(arr, i++, j--);
+    }
+  }
+
+  public static int nextGreaterElement(int n) {
+    // Convert int to char array
+    char[] numArray = Integer.toString(n).toCharArray();
+    int length = numArray.length;
+    int i = length - 1, j = length - 1;
+
+    // Find pivot from right to left
+    while(i>0) {
+      if (numArray[i-1] >= numArray[i]) {
+        --i;
+      } else {
+        break;
+      }
+    }
+
+    // n is something like 4321
+    if (i == 0) return -1;
+
+    // find index of smallest number greater than number at index i-1
+    while (j >= i && numArray[i-1] >= numArray[j]) {
+      --j;
+    }
+
+    // swap char at i-1 and j
+    swap(numArray, i-1, j);
+
+    // reverse from i to last
+    reverse(numArray, i, length - 1);
+
+    int result;
+    try {
+      // Parse back to int
+      result = Integer.parseInt(new String(numArray));
+    } catch (NumberFormatException e) {
+      return -1;
+    }
+
+    return result;
+  }
+
+  // Leetcode 628: https://leetcode.com/problems/maximum-product-of-three-numbers/
+  // Solution 1: Sorting
+  // Time: O(N * log(N)), Space: O(1)
+  public static int maximumProduct(int[] nums) {
+    int n = nums.length;
+    Arrays.sort(nums);
+    int result = Math.max(nums[0]*nums[1]*nums[n-1], nums[n-1]*nums[n-2]*nums[n-3]);
+    return result;
+  }
+
+  // Leetcode 628: https://leetcode.com/problems/maximum-product-of-three-numbers/
+  // Solution 2: Find 3 highest positive and 2 lowest negative
+  // Time: O(N), Space: O(1)
+  public static int maximumProduct2(int[] nums) {
+    int max1 = Integer.MIN_VALUE, max2 = Integer.MIN_VALUE, max3 = Integer.MIN_VALUE;
+    int min1 = Integer.MAX_VALUE, min2 = Integer.MAX_VALUE;
+    for (int n: nums) {
+      if (n > max1) {
+        max3 = max2;
+        max2 = max1;
+        max1 = n;
+      } else if (n > max2) {
+        max3 = max2;
+        max2 = n;
+      } else if (n > max3) {
+        max3 = n;
+      }
+
+      if (n < min1) {
+        min2 = min1;
+        min1 = n;
+      } else if (n < min2) {
+        min2 = n;
+      }
+    }
+    int result = Math.max(min1*min2*max1, max3*max2*max1);
+    return result;
+  }
+
+  // Leetcode 747: https://leetcode.com/problems/largest-number-at-least-twice-of-others/description/
+  // Solution 1: Find max and check the condition
+  // Time: O(N), Space: O(1)
+  public static int dominantIndex(int[] nums) {
+    int max = 0;
+    for (int i=1; i<nums.length; i++) {
+      if (nums[i] > nums[max])  max = i;
+    }
+
+    for (int i=0; i<nums.length; i++) {
+      if (i != max && nums[max] < (2*nums[i])) {
+        return -1;
+      }
+    }
+
+    return max;
+  }
+ 
+  // Leetcode 747: https://leetcode.com/problems/largest-number-at-least-twice-of-others/description/
+  // Solution 2: Find max and secondMax
+  // Time: O(N), Space: O(1)
+  public static int dominantIndex2(int[] nums) {
+    int max = -1, secondMax = -1, index = -1;
+    for (int i=0; i<nums.length; i++) {
+      if (nums[i] > max) {
+        secondMax = max;
+        max = nums[i];
+        index = i;
+      } else if (nums[i] > secondMax) {
+        secondMax = nums[i];
+      }
+    }
+
+    return max >= (secondMax*2) ? index : -1;
+  }
+
+  // Leetcode 769: https://leetcode.com/problems/max-chunks-to-make-sorted/
+  // Solution 1: https://leetcode.com/problems/max-chunks-to-make-sorted/solutions/113528/simple-java-on-solution-with-detailed-ex-bl3v/
+  // Time: O(N), Space: O(1)
+  public static int maxChunksToSorted(int[] arr) {
+    int result = 0, max = -1;
+
+    for (int i=0; i<arr.length; i++) {
+      max = Math.max(max, arr[i]);
+      if (max == i) {
+        ++result;
+      }
+    }
+
+    return result;
+  }
+
+  // Leetcode 768: https://leetcode.com/problems/max-chunks-to-make-sorted-ii/
+  // Solution 1: Prefix Sum
+  // Time: O(N * log(N)), Space: O(N)
+  public static int maxChunksToSorted21(int[] arr) {
+    int[] sortedArr = arr.clone();  // O(N)
+    Arrays.sort(sortedArr); // O(N * log(N))
+    
+    int result = 0, sum1 = 0, sum2 = 0;
+    for (int i=0;i <arr.length;i++) {  // O(N)
+      sum1 += arr[i];
+      sum2 += sortedArr[i];
+      if (sum1 == sum2) ++result;
+    }
+
+    return result;
+  }
+
+  // Leetcode 768: https://leetcode.com/problems/max-chunks-to-make-sorted-ii/
+  // Solution 2: https://leetcode.com/problems/max-chunks-to-make-sorted-ii/solutions/595713/monotonic-stack-solution-with-detailed-e-kpf5/
+  // Time: O(N), Space: O(N)
+  public static int maxChunksToSorted22(int[] arr) {
+    Stack<Integer> st = new Stack<>();
+    for (int n:arr) {
+      int largestInChunk = n;
+      while(!st.isEmpty() && st.peek() > n) {
+        largestInChunk = Math.max(largestInChunk, st.pop());
+      }
+      st.push(largestInChunk);
+    }
+
+    return st.size();
+  }
+
+  // Leetcode 795: https://leetcode.com/problems/number-of-subarrays-with-bounded-maximum/
+  // Solution 1: https://leetcode.com/problems/number-of-subarrays-with-bounded-maximum/solutions/1117122/java-explained-solution-o1-space-2-point-yuzd/
+  // Time: O(N), Space: O(1)
+  public static int numSubarrayBoundedMax(int[] nums, int left, int right) {
+    int i = 0, j = 0, result = 0, prevSubarrayCount = 0;
+
+    while (i < nums.length) {
+      if (nums[i] >= left && nums[i] <= right) {
+        prevSubarrayCount = i - j + 1;
+        result += prevSubarrayCount;
+      } else if (nums[i] < left) {
+        result += prevSubarrayCount;
+      } else {
+        j = i+1;
+        prevSubarrayCount = 0;
+      }
+      ++i;
+    }
+
+    return result;
+  }
+
+  // Leetcode 795: https://leetcode.com/problems/number-of-subarrays-with-bounded-maximum/
+  // Solution 2: https://algo.monster/liteproblems/795
+  // Time: O(N), Space: O(1)
+  /**
+   * Counts the number of subarrays where the maximum element is within the range [left, right].
+   * Uses the principle: subarrays with max in [left, right] = 
+   * subarrays with max ≤ right - subarrays with max ≤ (left - 1)
+   */
+  public static int numSubarrayBoundedMax2(int[] nums, int left, int right) {
+    // Count subarrays with max ≤ right minus subarrays with max ≤ (left - 1)
+    return countSubarraysWithMaxAtMost(nums, right) - countSubarraysWithMaxAtMost(nums, left - 1);
+  }
+
+  /**
+   * Counts the number of subarrays where all elements are at most the given threshold.
+   * 
+   * @param nums The input array
+   * @param threshold The maximum allowed value for all elements in counted subarrays
+   * @return The count of subarrays where all elements are ≤ threshold
+   */
+  private static int countSubarraysWithMaxAtMost(int[] nums, int threshold) {
+    int totalCount = 0;
+    int currentValidLength = 0;
+  
+    for (int currentValue : nums) {
+      if (currentValue > threshold) {
+        // Reset the valid subarray length when encountering a value exceeding threshold
+        currentValidLength = 0;
+      } else {
+        // Extend the current valid subarray
+        currentValidLength++;
+      }
+    
+      // Add the number of valid subarrays ending at current position
+      totalCount += currentValidLength;
+    }
+  
+    return totalCount;
+  }
+
+  // Leetcode 280: https://www.lintcode.com/problem/508/
+  // Solution 1: Sorting and swapping
+  // Time: O(N * log(N)), Space: O(1)
+  public static void wiggleSort(int[] nums) {
+    Arrays.sort(nums);
+    for (int i=2; i<nums.length;i+=2) {
+      int temp = nums[i-1];
+      nums[i-1] = nums[i];
+      nums[i] = temp;
+    }
+    Utility.print("nums", nums);
+  }
+
+  // Leetcode 280: https://www.lintcode.com/problem/508/
+  // Solution 2: Greedy approach
+  // Time: O(N), Space: O(1)
+  public static void swap(int[] arr, int i, int j) {
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+
+  public static void wiggleSort2(int[] nums) {
+    for (int i=1; i<nums.length;i++) {
+      if (
+        // odd index & condition violation
+        ((i & 1) == 1 && nums[i-1] > nums[i]) ||
+        // even index & condition violation
+        ((i & 1) == 0 && nums[i-1] < nums[i])
+      ) {
+        swap(nums, i-1, i);
+      }
+    }
+    Utility.print("nums", nums);
+  }
+
+  // Leetcode 345: https://leetcode.com/problems/reverse-vowels-of-a-string/
+  // Solution 1: Two pointer
+  // Time: O(N), Space: O(1)
+  public static String reverseVowels(String s) {
+    Set<Character> set = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
+    int n = s.length(), i = 0, j = n-1;
+    char[] arr = s.toCharArray();
+    
+    while (i<j) {
+      while (i<=j && !set.contains(arr[i])) {
+        ++i;
+      }
+
+      while (j>i && !set.contains(arr[j])) {
+        --j;
+      }
+
+      if (i<j) {
+        char temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        ++i;
+        --j;
+      }
+    }
+
+    return new String(arr);
+  }
+
+  // Leetcode 238: https://leetcode.com/problems/product-of-array-except-self/
+  // Solution: https://leetcode.com/problems/product-of-array-except-self/solutions/1342916/3-minute-read-mimicking-an-interview-by-1fpyp/
+  // 4 approaches in above solution. Check all. Coding the best here.
+  // Time: O(N), Space: O(1)
+  public static int[] productExceptSelf(int[] nums) {
+    int n = nums.length;
+    int[] ans = new int[n];
+
+    int curr = 1; // prefix
+    for (int i=0; i<n; i++) {
+      ans[i] = curr;
+      curr *= nums[i];
+    }
+
+    curr = 1; // suffix
+    for (int i=n-1; i>=0; i--) {
+      ans[i] *= curr;
+      curr *= nums[i];
+    }
+
+    return ans;
+  }
+
+  // Leetcode 849: https://leetcode.com/problems/maximize-distance-to-closest-person/
+  // Solution 1: Two pointer
+  // Time: O(N), Space: O(1)
+  public static int maxDistToClosest(int[] seats) {
+    int prev = -1, i = 0, ans = 0;
+    
+    while(i < seats.length) {
+      if (seats[i] == 0) {
+        ++i;
+        continue;
+      }
+
+      if (prev == -1) {
+        ans = i;
+      } else {
+        ans = Math.max(ans, (int)Math.ceil((i - prev)/2));
+      }
+
+      prev = i;
+      ++i;
+    }
+
+    ans = Math.max(ans, i - 1 - prev);
+    
+    return ans;
+  }
+
+  // Leetcode 41: https://leetcode.com/problems/first-missing-positive/description/
+  // Solution 1: Use set and then find ans
+  // Time: O(N), Space: O(N)
+
+  // Leetcode 41: https://leetcode.com/problems/first-missing-positive/description/
+  // Solution 2: Sort and then find ans
+  // Time: O(N*log(N)), Space: O(1)
+
+  // Leetcode 41: https://leetcode.com/problems/first-missing-positive/description/
+  // Solution 3: 
+  // Time: O(N), Space: O(1)
+  public int firstMissingPositive(int[] nums) {
+    int ans = 1;
+    
+    for (int i=0; i< nums.length; i++) {
+      
+    }
+
+    return ans;
+  }
+
   public static void main(String[] args) {
-    System.out.println(isLongPressedName("saeed", "ssaaedd"));
+    // Utility.measureTime("isLongPressedName", () -> isLongPressedName("saeed", "ssaaedd"));
+
+    // Utility.measureTime("maxArea", () -> maxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 }));
+
+    // Utility.measureTime("sortedSquares", () -> sortedSquares(new int[] { -4, -1, 0, 3, 10 }));
+
+    // Utility.measureTime("majorityElement1", () -> majorityElement1(new int[] { 3, 2, 3 }));
+    // Utility.measureTime("majorityElement2", () -> majorityElement2(new int[] { 3, 2, 3 }));
+    // Utility.measureTime("majorityElement3", () -> majorityElement3(new int[] { 3, 2, 3 }));
+
+    // Utility.measureTime("majorityElement21", () -> majorityElement21(new int[] { 1, 2 }));
+    // Utility.measureTime("majorityElement22", () -> majorityElement22(new int[] { 1, 2 }));
+
+    // Utility.measureTime("countOccurence", () -> countOccurence(new int[] { 3, 4, 2, 2, 1, 2, 3, 3 }, 4));
+
+    // Utility.measureTime("moreThanNdK", () -> moreThanNdK(new int[] { 3, 4, 2, 2, 1, 2, 3, 3 }, 4));
+
+    // Utility.measureTime("nextGreaterElement", () -> nextGreaterElement(218765 ));
+    // Utility.measureTime("nextGreaterElement", () -> nextGreaterElement(230241 ));
+    // Utility.measureTime("nextGreaterElement", () -> nextGreaterElement(12443322 ));
+
+    // Utility.measureTime("maximumProduct", () -> maximumProduct(new int[] {-1,-2,-3} ));
+    // Utility.measureTime("maximumProduct", () -> maximumProduct(new int[] {1,2,3,4} ));
+
+    // Utility.measureTime("maximumProduct2", () -> maximumProduct2(new int[] {-1,-2,-3} ));
+    // Utility.measureTime("maximumProduct2", () -> maximumProduct2(new int[] {1,2,3,4} ));
+
+    // Utility.measureTime("dominantIndex", () -> dominantIndex(new int[] {3,6,1,0} ));
+    // Utility.measureTime("dominantIndex", () -> dominantIndex(new int[] {1,2,3,4} ));
+    // Utility.measureTime("dominantIndex", () -> dominantIndex(new int[] {0,0,1,2} ));
+
+    // Utility.measureTime("dominantIndex2", () -> dominantIndex2(new int[] {3,6,1,0} ));
+    // Utility.measureTime("dominantIndex2", () -> dominantIndex2(new int[] {1,2,3,4} ));
+    // Utility.measureTime("dominantIndex2", () -> dominantIndex2(new int[] {0,0,1,2} ));
+
+    // Utility.measureTime("maxChunksToSorted", () -> maxChunksToSorted(new int[] {4,3,2,1,0} ));
+    // Utility.measureTime("maxChunksToSorted", () -> maxChunksToSorted(new int[] {1,0,2,3,4} ));
+    // Utility.measureTime("maxChunksToSorted", () -> maxChunksToSorted(new int[] {2,0,1} ));
+    // Utility.measureTime("maxChunksToSorted", () -> maxChunksToSorted(new int[] {1,2,0,3} ));
+
+    // Utility.measureTime("maxChunksToSorted21", () -> maxChunksToSorted21(new int[] {5,4,3,2,1} ));
+    // Utility.measureTime("maxChunksToSorted21", () -> maxChunksToSorted21(new int[] {2,1,3,4,4} ));
+    // Utility.measureTime("maxChunksToSorted21", () -> maxChunksToSorted21(new int[] {1,1,0,0,1} ));
+
+    // Utility.measureTime("maxChunksToSorted22", () -> maxChunksToSorted22(new int[] {5,4,3,2,1} ));
+    // Utility.measureTime("maxChunksToSorted22", () -> maxChunksToSorted22(new int[] {2,1,3,4,4} ));
+    // Utility.measureTime("maxChunksToSorted22", () -> maxChunksToSorted22(new int[] {1,1,0,0,1} ));
+    // Utility.measureTime("maxChunksToSorted22", () -> maxChunksToSorted22(new int[] {0,1,3,4,2} ));
+
+    // Utility.measureTime("numSubarrayBoundedMax", () -> numSubarrayBoundedMax(new int[] {2,9,2,5,6}, 2, 8 ));
+    // Utility.measureTime("numSubarrayBoundedMax", () -> numSubarrayBoundedMax(new int[] {2,1,4,3}, 2, 3 ));
+    // Utility.measureTime("numSubarrayBoundedMax", () -> numSubarrayBoundedMax(new int[] {7,3,6,7,1}, 1, 4 ));
+    // Utility.measureTime("numSubarrayBoundedMax", () -> numSubarrayBoundedMax(new int[] {73,55,36,5,55,14,9,7,72,52}, 32, 69 ));
+    // Utility.measureTime("numSubarrayBoundedMax", () -> numSubarrayBoundedMax(new int[] {876,880,482,260,132,421,732,703,795,420,871,445,400,291,358,589,617,202,755,810,227,813,549,791,418,528,835,401,526,584,873,662,13,314,988,101,299,816,833,224,160,852,179,769,646,558,661,808,651,982,878,918,406,551,467,87,139,387,16,531,307,389,939,551,613,36,528,460,404,314,66,111,458,531,944,461,951,419,82,896,467,353,704,905,705,760,61,422,395,298,127,516,153,299,801,341,668,598,98,241}, 658, 719 ));
+    
+    // Utility.measureTime("wiggleSort", () -> wiggleSort(new int[] {3, 5, 2, 1, 6, 4}));
+    // Utility.measureTime("wiggleSort", () -> wiggleSort(new int[] {1, 2, 2, 3, 3, 4, 5}));
+
+    // Utility.measureTime("wiggleSort2", () -> wiggleSort2(new int[] {3, 5, 2, 1, 6, 4}));
+    // Utility.measureTime("wiggleSort2", () -> wiggleSort2(new int[] {1, 2, 2, 3, 3, 4, 5}));
+    
+    // Utility.measureTime("reverseVowels", () -> reverseVowels("IceCreAm"));
+    // Utility.measureTime("reverseVowels", () -> reverseVowels("leetcode"));
+    
+    // Utility.measureTime("productExceptSelf", () -> productExceptSelf(new int[] {1,2,3,4}));
+    // Utility.measureTime("productExceptSelf", () -> productExceptSelf(new int[] {-1,1,0,-3,3}));
+
+    // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {1,0,0,0,1,0,1}));
+    // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {1,0,0,0}));
+    // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {0,1}));
   }
 }

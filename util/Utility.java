@@ -35,4 +35,15 @@ public class Utility {
     print(label, result);
     System.out.println("Time: " + durationMs + "ms " + durationMicros + "µs");
   }
+
+  // Overloaded method for void functions
+  public static void measureTime(String label, Runnable function) {
+    long startTime = System.nanoTime();
+    function.run();
+    long endTime = System.nanoTime();
+    long durationMs = (endTime - startTime) / 1_000_000;
+    long durationMicros = ((endTime - startTime) / 1_000) % 1_000;
+    System.out.println(label + ": void");
+    System.out.println("Time: " + durationMs + "ms " + durationMicros + "µs");
+  }
 }
