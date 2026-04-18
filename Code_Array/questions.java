@@ -1,9 +1,15 @@
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import util.Utility;
@@ -693,16 +699,316 @@ class Solution {
   // Time: O(N*log(N)), Space: O(1)
 
   // Leetcode 41: https://leetcode.com/problems/first-missing-positive/description/
-  // Solution 3: 
+  // Solution 3: https://leetcode.com/problems/first-missing-positive/solutions/5694826/video-use-index-to-count-numbers-by-niit-kgax/
   // Time: O(N), Space: O(1)
-  public int firstMissingPositive(int[] nums) {
-    int ans = 1;
+  public static int firstMissingPositive(int[] nums) {
+    int n = nums.length;
     
-    for (int i=0; i< nums.length; i++) {
-      
+    for (int i=0; i<n; i++) {
+      if (nums[i] <= 0 || nums[i] > n) {
+        nums[i] = n+1;
+      }
+    }
+
+    for (int i=0; i<n; i++) {
+      int index = Math.abs(nums[i]) - 1;
+      if (index < n && nums[index] > 0)
+        nums[index] = -nums[index];
+    }
+
+    int ans = n+1;
+    for (int i=0; i<n; i++) {
+      if (nums[i] > 0) {
+        ans = i+1;
+        break;
+      }
     }
 
     return ans;
+  }
+
+  // Leetcode 370: https://www.lintcode.com/problem/903/
+  // Solution 1: Brute force
+  // Time: O(k * n), Space: O(n)
+
+  // Leetcode 370: https://www.lintcode.com/problem/903/
+  // Solution 2: Prefix Sum (Difference array technique)
+  // Time: O(k + n), Space: O(n) 
+  // k = number of updates
+  // n = length of result array
+  public static int[] getModifiedArray(int length, int[][] updates) {
+    int[] result = new int[length];
+
+    for (int i=0; i<updates.length; i++) {
+      int start = updates[i][0];
+      int end = updates[i][1];
+      int value = updates[i][2];
+
+      result[start] += value;
+      if (end + 1 < length)
+        result[end + 1] += -value;
+    }
+
+    for (int i=1; i<length; i++) {
+      result[i] += result[i-1];
+    }
+ 
+    return result;
+  }
+
+  // Leetcode 296: https://algo.monster/liteproblems/296
+  // Solution 1: Brute force
+  // Time: O(k * m * n), Space: O(k)
+  // where k = total number of friends in grid
+  //       m * n = total cells in grid 
+
+  // Leetcode 296: https://algo.monster/liteproblems/296
+  // Solution 2: Using Median
+  // Time: O(m*n + k*log(k)), Space: O(k)
+  // where k = total number of friends in grid
+  //       m * n = total cells in grid 
+  public static int getTotalDistance(List<Integer> positions, int target) {
+    int result = 0, n = positions.size();
+    for (int i=0; i<n; i++) {
+      result += Math.abs(positions.get(i) - target);
+    }
+    return result;
+  }
+
+  public static int minTotalDistance(int[][] grid) {
+    int m = grid.length;
+    int n = grid[0].length;
+
+    List<Integer> rows = new ArrayList<>();
+    List<Integer> cols = new ArrayList<>();
+
+    for (int i=0; i<m; i++) {
+      for (int j=0; j<n; j++) {
+        if (grid[i][j] == 1) {
+          rows.add(i);
+          cols.add(j);
+        }
+      }
+    }
+
+    Collections.sort(cols);
+
+    int medianRow = rows.get(rows.size() >> 1);
+    int medianColumn = cols.get(cols.size() >> 1);
+
+    return getTotalDistance(rows, medianRow) + getTotalDistance(cols, medianColumn);
+  }
+
+  // Leetcode 462: https://leetcode.com/problems/minimum-moves-to-equal-array-elements-ii/description/
+  // Solution 1: Using median
+  // Time: O(n * log(n)), Space: O(1)
+  public static int minMoves2(int[] nums) {
+    int result = 0;
+
+    Arrays.sort(nums);
+    int median = nums[nums.length / 2];
+
+    for (int i=0; i<nums.length; i++) {
+      result += Math.abs(nums[i] - median);
+    }
+
+    return result;
+  }
+
+  // Leetcode 462: https://leetcode.com/problems/minimum-moves-to-equal-array-elements-ii/description/
+  // Solution 2: Using two pointer
+  // Time: O(n * log(n)), Space: O(1)
+  public static int minMoves22(int[] nums) {
+    int result = 0, n = nums.length;
+
+    Arrays.sort(nums);
+
+    for (int i = 0; i < n / 2; i++) {
+      result += Math.abs(nums[n - i - 1] - nums[i]);
+    }
+
+    return result;
+  }
+
+  // Leetcode 462: https://leetcode.com/problems/minimum-moves-to-equal-array-elements-ii/description/
+  // Solution 3: https://leetcode.com/problems/minimum-moves-to-equal-array-elements-ii/solutions/2215732/c-3-approaches-full-explanation-by-tltan-rrpm/
+  // Time: O(n), Space: O(1)
+  // Java does not have direct equivalent of C++'s std::nth_element which partially sorts a collection 
+  // so that the element at the position is what it would be in a fully sorted collection
+
+  // Leetcode 905: https://leetcode.com/problems/sort-array-by-parity/description/
+  // Solution 1: Two pointer
+  // Time: O(n), Space: O(1)
+  public static int[] sortArrayByParity(int[] nums) {
+    int i = 0, j = nums.length - 1;
+
+    while (i < j) {
+      // even
+      if((nums[i] & 1) == 0) {
+        ++i;
+      }
+      // odd 
+      else if((nums[j] & 1) == 1) {
+        --j;
+      } else {
+        swap(nums, i, j);
+        ++i;
+        --j;
+      }
+    }
+
+    return nums;
+  }
+
+  // Leetcode 670: https://leetcode.com/problems/maximum-swap/description/
+  // Solution 1: Brute force
+  // Time: O(d^2), Space: O(1)
+  // d = total digits in num
+
+  // Leetcode 670: https://leetcode.com/problems/maximum-swap/description/
+  // Solution 2: Use stack
+  // Time: O(d) or O(log(N)), Space: O(d)
+  static class CustomPair {
+    public char a;
+    public int b;
+    public CustomPair(char a, int b) {
+      this.a = a;
+      this.b = b;
+    }
+  }
+
+  public static int maximumSwap(int num) {
+    Deque<CustomPair> stack = new ArrayDeque<>();
+
+    char[] arr = Integer.toString(num).toCharArray();
+
+    for(int i=arr.length - 1; i>0; i--) {
+      if (stack.isEmpty() || (stack.peek().a < arr[i])) {
+        stack.push(new CustomPair(arr[i], i));
+      }
+    }
+
+    for (int i=0; i < arr.length-1; i++) {
+      if (stack.isEmpty())  break;
+
+      CustomPair pair = stack.peek();
+      if (pair.b == i) stack.pop();
+
+      if (pair.a > arr[i]) {
+        swap(arr, pair.b, i);
+        return Integer.parseInt(new String(arr));
+      }
+    }
+
+    return num;
+  }
+
+  // GFG: http://geeksforgeeks.org/dsa/minimum-number-platforms-required-railwaybus-station/
+  // Solution 1: 
+  // Time: O(N * log(N)), Space: O(1)
+  public static int minPlatform(int[] arr, int[] dep) {
+    int n = arr.length;
+    int res = 0;
+
+    Arrays.sort(arr);
+    Arrays.sort(dep);
+
+    int count = 1;
+    int i = 1, j = 0;
+
+    // Similar to merge in merge sort to process  all events in sorted order
+    while (i < n && j < n) {
+
+        // If next event in sorted order is arrival, increment count of platforms needed
+        if (arr[i] <= dep[j]) {
+            count++;
+            i++;
+        }
+        // Else decrement count of platforms needed
+        else if (arr[i] > dep[j]) {
+            count--;
+            j++;
+        }
+
+        // Update result if needed
+        res = Math.max(res, count);
+    }
+
+    return res;
+  }
+  
+  // GFG: https://www.geeksforgeeks.org/dsa/sieve-of-eratosthenes/
+  // Solution 1:
+  // Time: O(n*log(log(n))), Space: O(n)
+  public static int[] sieve(int n) {
+    boolean[] prime = new boolean[n + 1];
+    for (int i = 0; i <= n; i++) {
+      prime[i] = true;
+    }
+
+    for (int p = 2; p * p <= n; p++) {
+      if (prime[p]) {
+        // marking as false
+        for (int i = p * p; i <= n; i += p)
+          prime[i] = false;
+      }
+    }
+
+    // Count number of primes
+    int count = 0;
+    for (int p = 2; p <= n; p++) {
+      if (prime[p])
+        count++;
+    }
+
+    // Store primes in an array
+    int[] res = new int[count];
+    int index = 0;
+    for (int p = 2; p <= n; p++) {
+      if (prime[p])
+        res[index++] = p;
+    }
+
+    return res;
+  }
+
+  // SPOJ: https://www.spoj.com/problems/PRIME1/cstart=10
+  // Solution 1:
+  // Time: O(n*log(log(n))), Space: O(n)
+
+  // GFG: https://www.geeksforgeeks.org/dsa/check-if-pair-with-given-sum-exists-in-array/
+  // Solution 1: Generating all Possible Pairs - O(n^2) time and O(1) space
+  // Solution 2: Sorting and Binary Search - O(n * log(n)) time and O(1) space
+  // Solution 3: Sorting and Two-Pointer Technique - O(n * log(n)) time and O(1) space
+  // Solution 4: Using Hash Set - O(n) time and O(n) space
+
+  // GFG: https://www.geeksforgeeks.org/dsa/find-a-pair-with-the-given-difference/
+  // Solution 1: Generating all Possible Pairs - O(n^2) time and O(1) space
+  // Solution 2: Sorting and Binary Search - O(n * log(n)) time and O(1) space
+  // Solution 3: Sorting and Two-Pointer Technique - O(n * log(n)) time and O(1) space
+  // Solution 4: Using Hash Set - O(n) time and O(n) space
+
+  // Leetcode 881: https://leetcode.com/problems/boats-to-save-people/description/
+  // Solution 1: Sorting + Two-pointer
+  // Time: O(n*log(n)), Space: O(1)
+  public static int numRescueBoats(int[] people, int limit) {
+    Arrays.sort(people);
+    int totalBoats = 0, i=0, j=people.length-1;
+
+    while (i <= j) {
+      int sum = people[i] + people[j];
+
+      if (sum > limit) {
+        --j;
+        ++totalBoats;
+      } else {
+        ++i;
+        --j;
+        ++totalBoats;
+      }
+    }
+
+    return totalBoats;
   }
 
   public static void main(String[] args) {
@@ -776,5 +1082,39 @@ class Solution {
     // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {1,0,0,0,1,0,1}));
     // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {1,0,0,0}));
     // Utility.measureTime("maxDistToClosest", () -> maxDistToClosest(new int[] {0,1}));
+
+    // Utility.measureTime("firstMissingPositive", () -> firstMissingPositive(new int[] {3,4,-1,1}));
+    // Utility.measureTime("firstMissingPositive", () -> firstMissingPositive(new int[] {1,2,0}));
+    // Utility.measureTime("firstMissingPositive", () -> firstMissingPositive(new int[] {7,8,9,11,12}));
+
+    // Utility.measureTime("getModifiedArray", () -> getModifiedArray(
+    //   5,
+    //   new int[][] {
+    //     {1,  3,  2},
+    //     {2,  4,  3},
+    //     {0,  2, -2}
+    //   }
+    // ));
+
+    // Utility.measureTime("minTotalDistance", () -> minTotalDistance(
+    //   new int[][] {
+    //     {1, 0, 1},
+    //     {0, 0, 0},
+    //     {0, 1, 0}
+    //   }
+    // ));
+    
+    // Utility.measureTime("minMoves2", () -> minMoves2(new int[] {1,10,2,9}));
+    // Utility.measureTime("minMoves2", () -> minMoves2(new int[] {1,100,100,100}));
+    
+    // Utility.measureTime("minMoves22", () -> minMoves22(new int[] {1,10,2,9}));
+    // Utility.measureTime("minMoves22", () -> minMoves22(new int[] {1,100,100,100}));
+
+    // Utility.measureTime("sortArrayByParity", () -> sortArrayByParity(new int[] {3,1,2,4}));
+
+    // Utility.measureTime("maximumSwap", () -> maximumSwap(2736));
+    // Utility.measureTime("maximumSwap", () -> maximumSwap(9973));
+
+    Utility.measureTime("numRescueBoats", () -> numRescueBoats(new int[] {3,2,2,1}, 3));
   }
 }
