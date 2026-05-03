@@ -1011,6 +1011,398 @@ class Solution {
     return totalBoats;
   }
 
+  // GFG: https://www.geeksforgeeks.org/dsa/find-the-number-of-jumps-to-reach-x-in-the-number-line-from-zero/
+  // Solution 1: Math
+  // Time: O(n), Space: O(1)
+
+  // Leetcode 763: https://leetcode.com/problems/partition-labels/description/
+  // Solution 1: HashMap
+  // Time: O(n), Space: O(n)
+  public static List<Integer> partitionLabels(String s) {
+    int n = s.length();
+    Map<Character, Integer> map = new HashMap<>();
+    for (int i=0; i<n; i++) {
+      map.put(s.charAt(i), i);
+    }
+
+    List<Integer> result = new ArrayList<>();
+    int prevPartitionLastIndex = -1, maxLastIndexInPartition = 0;
+
+    for (int i=0; i<n; i++) {
+      int lastIndexOfCharAtI = map.get(s.charAt(i));
+      maxLastIndexInPartition = Math.max(maxLastIndexInPartition, lastIndexOfCharAtI);
+
+      if (maxLastIndexInPartition == i) {
+        int partitionLength = maxLastIndexInPartition - prevPartitionLastIndex;
+        result.add(partitionLength);
+        prevPartitionLastIndex = i;
+      }
+    }
+
+    return result;
+  }
+
+  // Leetcode 915: https://leetcode.com/problems/partition-array-into-disjoint-intervals/description/
+  // Solution 1: 
+  // Time: O(N), Space: O(1)
+  public static int partitionDisjoint(int[] nums) {
+    int maxInLeft = nums[0], lastIndexOfLeft = 0, currMax = nums[0];
+
+    for (int i=1; i<nums.length; i++) {
+      if (nums[i] < maxInLeft) {
+        lastIndexOfLeft = i;
+        maxInLeft = Math.max(currMax, maxInLeft);
+      }
+      currMax = Math.max(currMax, nums[i]);
+    }
+
+    return lastIndexOfLeft + 1; 
+  }
+
+  // Leetcode 915: https://leetcode.com/problems/partition-array-into-disjoint-intervals/description/
+  // Solution 2: Two arrays - https://leetcode.com/problems/partition-array-into-disjoint-intervals/solutions/1122368/java-2-solutions-by-himanshuchhikara-hg50/
+  // Time: O(N), Space: O(N)
+
+  // Codechef: https://www.codechef.com/SNCKPE19/problems/BUDDYNIM
+  // Solution 2: 
+  // Time: O(N + M), Space: O(N + M)
+
+  // Leetcode 152: https://leetcode.com/problems/maximum-product-subarray/
+  // Solution 1: https://leetcode.com/problems/maximum-product-subarray/solutions/3321410/c-kadanes-algo-full-explanation-by-garvi-x4oz/
+  // Time: O(N), Space: O(1)
+  public static int maxProduct(int[] nums) {
+    int ans = Integer.MIN_VALUE, product = 1;
+
+    for (int i = 0; i < nums.length; i++) {
+      product = product * nums[i];
+      ans = Math.max(ans, product);
+      if (nums[i] == 0)
+        product = 1;
+    }
+
+    product = 1;
+    for (int i = nums.length - 1; i >= 0; i--) {
+      product = product * nums[i];
+      ans = Math.max(ans, product);
+      if (nums[i] == 0)
+        product = 1;
+    }
+
+    return ans;
+  }
+
+  // Leetcode 829: https://leetcode.com/problems/consecutive-numbers-sum
+  // Solution 1: https://leetcode.com/problems/consecutive-numbers-sum/solutions/129015/5-lines-c-solution-with-detailed-mathema-tivy/
+  // Time: O(sqrt(N)), Space: O(1)
+  public static int consecutiveNumbersSum(int n) {
+    int ans = 1;
+    
+    for (int k=2; k < Math.sqrt(2*n + k); k++) {
+      int val = n - (k*(k-1)/2);
+      if (val % k == 0) ++ans;
+    }
+    
+    return ans;
+  }
+
+  // Leetcode 838: https://leetcode.com/problems/push-dominoes
+  // Solution 1: https://leetcode.com/problems/push-dominoes/solutions/6706297/chain-of-still-dominoes-with-images-exam-41wn/
+  // Time: O(N), Space: O(N)
+  public static String pushDominoes(String s) {
+    s = "L" + s + "R";
+    StringBuilder res = new StringBuilder();
+    int prev = 0;
+    for (int curr = 1; curr < s.length(); ++curr) {
+      if (s.charAt(curr) == '.') continue;
+      int span = curr - prev - 1;
+      if (prev > 0)
+        res.append(s.charAt(prev));
+      if (s.charAt(prev) == s.charAt(curr)) {
+        for (int i = 0; i < span; ++i)
+          res.append(s.charAt(prev));
+      } else if (s.charAt(prev) == 'L' && s.charAt(curr) == 'R') {
+        for (int i = 0; i < span; ++i)
+          res.append('.');
+      } else {
+        for (int i = 0; i < span / 2; ++i)
+          res.append('R');
+        if (span % 2 == 1)
+          res.append('.');
+        for (int i = 0; i < span / 2; ++i)
+          res.append('L');
+      }
+      prev = curr;
+    }
+    return res.toString();
+  }
+
+  // Leetcode 43: https://leetcode.com/problems/multiply-strings
+  // Solution 1: https://leetcode.com/problems/multiply-strings/solutions/17605/easiest-java-solution-with-graph-explana-69e3/
+  // Time: O((m * n) + (m + n)), Space: O(m + n)
+  public static String multiply(String num1, String num2) {
+    int m = num1.length(), n = num2.length();
+    int[] pos = new int[m + n];
+  
+    for(int i = m - 1; i >= 0; i--) {
+      for(int j = n - 1; j >= 0; j--) {
+        int mul = (num1.charAt(i) - '0') * (num2.charAt(j) - '0'); 
+        int p1 = i + j, p2 = i + j + 1;
+        int sum = mul + pos[p2];
+
+        pos[p1] += sum / 10;
+        pos[p2] = (sum) % 10;
+      }
+    }
+    
+    StringBuilder sb = new StringBuilder();
+    for(int p : pos)
+      if(!(sb.length() == 0 && p == 0))
+        sb.append(p);
+
+    return sb.length() == 0 ? "0" : sb.toString();
+  }
+
+  // Leetcode 1031: https://leetcode.com/problems/maximum-sum-of-two-non-overlapping-subarrays
+  // Solution 1: Prefix Sum - https://leetcode.com/problems/maximum-sum-of-two-non-overlapping-subarrays/solutions/279221/javapython-3-two-easy-dp-codes-w-comment-jf3d/comments/885457/
+  // Time: O(N), Space: O(N)
+  public static int maxSumTwoNoOverlap(int[] A, int L, int M) {
+    int[] preSum = new int[A.length + 1];
+    for(int i = 1; i <= A.length; i++){
+      preSum[i] = preSum[i - 1] + A[i - 1];
+    }
+
+    int l = findHelper(L, M, preSum);
+    int r = findHelper(M, L, preSum);
+    
+    return Math.max(l, r);
+  }
+
+  private static int findHelper(int l, int r, int[] preSum){
+    int max = 0;
+    int lMax = preSum[l], rSum = preSum[r + l] - preSum[l];
+    max = lMax + rSum;
+
+    for(int i = l + 1; i + r < preSum.length; i++){
+      lMax = Math.max(lMax, preSum[i] - preSum[i - l]);
+      rSum = preSum[r + i] - preSum[i];
+      max = Math.max(max, lMax + rSum);
+    }
+
+    return max;
+  }
+
+  // Leetcode 1031: https://leetcode.com/problems/maximum-sum-of-two-non-overlapping-subarrays
+  // Solution 2: Sliding Window - https://leetcode.com/problems/maximum-sum-of-two-non-overlapping-subarrays/solutions/279221/javapython-3-two-easy-dp-codes-w-comment-jf3d/
+  // Time: O(N), Space: O(1)
+  public static int maxSumTwoNoOverlap2(int[] A, int L, int M) {
+    return Math.max(maxSum(A, L, M), maxSum(A, M, L));
+  }
+
+  private static int maxSum(int[] A, int L, int M) {
+    int sumL = 0, sumM = 0;
+    for (int i = 0; i < L + M; ++i) { // compute the initial values of L & M length subarrays.
+      if (i < L) sumL += A[i];
+      else sumM += A[i];
+    }
+
+    int ans = sumM + sumL; // sum of sumL and sumM.
+    for (int i = L + M, maxL = sumL; i < A.length; ++i) {
+      sumL += A[i - M] - A[i - L - M]; // update sumL.
+      sumM += A[i] - A[i - M]; // update sumM.
+      maxL = Math.max(maxL, sumL); // update max value of L-length subarray.
+      ans = Math.max(ans, maxL + sumM); // update max value of sum of L & M-length subarrays.
+    }
+    
+    return ans;
+  }
+
+  // Leetcode 42: https://leetcode.com/problems/trapping-rain-water/
+  // Solution 1: Max in left and Max in right
+  // Time: O(N), Space: O(N)
+  public static int trap(int[] height) {
+    int n = height.length;
+    int[] maxInLeft = new int[n+2];
+    int[] maxInRight = new int[n+2];
+  
+    for (int i = 1; i <= n; i++) {
+      maxInLeft[i] = Math.max(maxInLeft[i-1], height[i-1]);
+      maxInRight[n + 1 - i] = Math.max(maxInRight[n + 2 - i], height[n-i]);
+    }
+
+    int count = 0;
+    for (int i=0; i<n; i++) {
+      int minValue = Math.min(maxInLeft[i+1], maxInRight[i+1]);
+      if (height[i] < minValue) {
+        count += minValue - height[i];
+      }
+    }
+
+    return count;
+  }
+
+  // Leetcode 42: https://leetcode.com/problems/trapping-rain-water/
+  // Solution 2: Stack
+  // Time: O(N), Space: O(N)
+  public static int trap2(int[] height) {
+    int n = height.length;
+    Deque<Integer> stack = new ArrayDeque<>();
+
+    int water = 0;
+
+    for (int i=0; i<n; i++) {
+      while(!stack.isEmpty() && height[i] > height[stack.peek()]) {
+        int currHeight = height[stack.pop()];
+
+        if (stack.isEmpty())
+          break;
+
+        int width = i - stack.peek() - 1;
+        water += width*(Math.min(height[stack.peek()], height[i]) - currHeight);
+      }
+      stack.push(i);
+    }
+
+    return water;
+  }
+
+  // Leetcode 42: https://leetcode.com/problems/trapping-rain-water/
+  // Solution 3: Two pointer
+  // Time: O(N), Space: O(1)
+  public static int trap3(int[] height) {
+    int i = 0, j = height.length - 1;
+    int water = 0, leftMax = 0, rightMax = 0;
+
+    while(i<=j) {
+      leftMax = Math.max(leftMax, height[i]);
+      rightMax = Math.max(rightMax, height[j]);
+
+      water += (leftMax <= rightMax ? leftMax - height[i++] : rightMax - height[j--]);
+    }
+
+    return water;
+  }
+
+  // Leetcode 56: https://leetcode.com/problems/merge-intervals
+  // Solution 1: Sorting
+  // Time: O(N*log(N)), Space: O(N)
+  public static int[][] merge(int[][] intervals) {
+    Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+
+    List<int[]> ans = new ArrayList<int[]>();
+    int[] prev = intervals[0];
+
+    for (int i=1; i<intervals.length; i++) {
+      if (prev[1] >= intervals[i][0]) {
+        prev[1] = Math.max(prev[1], intervals[i][1]);
+      } else {
+        ans.add(prev);
+        prev = intervals[i];
+      }
+    }
+
+    ans.add(prev);
+
+    return ans.toArray(new int[ans.size()][]);
+  }
+
+  // Leetcode 986: https://leetcode.com/problems/interval-list-intersections/
+  // Solution 1: Two pointer
+  // Time: O(M+N), Space: O(M+N)
+  public static int[][] intervalIntersection(int[][] firstList, int[][] secondList) {
+    if (firstList.length == 0 || secondList.length == 0) {
+      return new int[0][];
+    }
+
+    int i = 0, j = 0;
+    List<int[]> ans = new ArrayList<int[]>();
+
+    while (i < firstList.length && j < secondList.length) {
+      if (
+        (firstList[i][1] >= secondList[j][0] && firstList[i][1] <= secondList[j][1]) || 
+        (secondList[j][1] >= firstList[i][0] && secondList[j][1] <= firstList[i][1])
+      ) {
+        ans.add(new int[]{Math.max(firstList[i][0], secondList[j][0]), Math.min(firstList[i][1], secondList[j][1])});
+      }
+      if (firstList[i][1] < secondList[j][1])
+        ++i;
+      else
+        ++j;
+    }
+
+    return ans.toArray(new int[ans.size()][]);
+  }
+
+  // Leetcode 57: https://leetcode.com/problems/insert-interval/
+  // Solution 1: Sorting
+  // Time: O(N*log(N)), Space: O(N)
+  public static int[][] insert(int[][] intervals, int[] newInterval) {
+    List<int[]> intervalList = new ArrayList<>(Arrays.asList(intervals));
+    intervalList.add(newInterval);
+    Collections.sort(intervalList, (a, b) -> Integer.compare(a[0], b[0]));
+
+    List<int[]> res = new ArrayList<>();
+    int[] current = intervalList.get(0);
+
+    for (int i = 1; i < intervalList.size(); i++) {
+      int[] interval = intervalList.get(i);
+      
+      if (current[1] >= interval[0]) {
+        current[1] = Math.max(current[1], interval[1]);
+      } else {
+        res.add(current);
+        current = interval;
+      }
+    }
+
+    res.add(current);
+    return res.toArray(new int[res.size()][]);
+  }
+
+  // Leetcode 57: https://leetcode.com/problems/insert-interval/
+  // Solution 2: Two pointer
+  // Time: O(N), Space: O(N)
+  public static int[][] insert2(int[][] intervals, int[] newInterval) {
+    List<int[]> ans = new ArrayList<>();
+    
+    int i = 0;
+    while (i < intervals.length && intervals[i][1] < newInterval[0]) {
+      ans.add(intervals[i++]);
+    }
+
+    while (i < intervals.length && intervals[i][0] <= newInterval[1]) {
+      newInterval[0] = Math.min(intervals[i][0], newInterval[0]);
+      newInterval[1] = Math.max(intervals[i][1], newInterval[1]);
+      ++i;
+    }
+
+    ans.add(newInterval);
+
+    while (i < intervals.length) {
+      ans.add(intervals[i++]);
+    }
+
+    return ans.toArray(new int[ans.size()][]);
+  }
+
+  // Leetcode 452: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/
+  // Solution 1: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/solutions/8104319/greedy-end-based-balloon-burst-by-jayant-pwtd/
+  // Time: O(N*log(N)), Space: O(1)
+  public static int findMinArrowShots(int[][] points) {
+    Arrays.sort(points, (a, b) -> Integer.compare(a[1], b[1]));
+
+    int count = 1;
+    int lowest = points[0][1];
+    for (int i=1; i<points.length; i++) {
+      // No overlap
+      if (points[i][0] > lowest) {
+        ++count;
+        lowest = points[i][1];
+      }
+    }
+
+    return count;
+  }
+
   public static void main(String[] args) {
     // Utility.measureTime("isLongPressedName", () -> isLongPressedName("saeed", "ssaaedd"));
 
@@ -1115,6 +1507,66 @@ class Solution {
     // Utility.measureTime("maximumSwap", () -> maximumSwap(2736));
     // Utility.measureTime("maximumSwap", () -> maximumSwap(9973));
 
-    Utility.measureTime("numRescueBoats", () -> numRescueBoats(new int[] {3,2,2,1}, 3));
+    // Utility.measureTime("numRescueBoats", () -> numRescueBoats(new int[] {3,2,2,1}, 3));
+
+    // Utility.measureTime("partitionLabels", () -> partitionLabels("ababcbacadefegdehijhklij"));
+    // Utility.measureTime("partitionLabels", () -> partitionLabels("eccbbbbdec"));
+    // Utility.measureTime("partitionLabels", () -> partitionLabels("ababcc"));
+
+    // Utility.measureTime("partitionDisjoint", () -> partitionDisjoint(new int[] {5,0,3,8,6}));
+    // Utility.measureTime("partitionDisjoint", () -> partitionDisjoint(new int[] {1,1,1,0,6,12}));
+    // Utility.measureTime("partitionDisjoint", () -> partitionDisjoint(new int[] {5,8,3,0,7,9}));
+
+    // Utility.measureTime("maxProduct", () -> maxProduct(new int[] {2,3,-2,4}));
+    // Utility.measureTime("maxProduct", () -> maxProduct(new int[] {-2,0,-1}));
+
+    // Utility.measureTime("consecutiveNumbersSum", () -> consecutiveNumbersSum(15));
+    // Utility.measureTime("consecutiveNumbersSum", () -> consecutiveNumbersSum(9));
+    // Utility.measureTime("consecutiveNumbersSum", () -> consecutiveNumbersSum(5));
+
+    // Utility.measureTime("pushDominoes", () -> pushDominoes("RR.L"));
+    // Utility.measureTime("pushDominoes", () -> pushDominoes(".L.R...LR..L.."));
+    // Utility.measureTime("pushDominoes", () -> pushDominoes(".L.R...LR..LR."));
+
+    // Utility.measureTime("trap", () -> trap(new int[] {0,1,0,2,1,0,1,3,2,1,2,1}));
+    // Utility.measureTime("trap", () -> trap(new int[] {4,2,0,3,2,5}));
+
+    // Utility.measureTime("merge", () -> merge(new int[][] {{1,3},{2,6},{8,10},{15,18}}));
+    // Utility.measureTime("merge", () -> merge(new int[][] {{1,4},{4,5}}));
+    // Utility.measureTime("merge", () -> merge(new int[][] {{4,7},{1,4}}));
+
+    // Utility.measureTime("intervalIntersection", () -> intervalIntersection(
+    //   new int[][] {{0,2}, {5,10}, {13,23}, {24,25}},
+    //   new int[][] {{1,5}, {8,12}, {15,24}, {25,26}}
+    // ));
+    // Utility.measureTime("intervalIntersection", () -> intervalIntersection(
+    //   new int[][] {{1,3}, {5,9}},
+    //   new int[][] {}
+    // ));
+
+    // Utility.measureTime("insert2", () -> insert2(
+    //   new int[][] {{1,3}, {6,9}},
+    //   new int[] {2,5}
+    // ));
+    // Utility.measureTime("insert2", () -> insert2(
+    //   new int[][] {{1,2},{3,5},{6,7},{8,10},{12,16}},
+    //   new int[] {4,8}
+    // ));
+    
+    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+      new int[][] {{10,16},{2,8},{1,6},{7,12}}
+    ));
+    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+      new int[][] {{1,2},{3,4},{5,6},{7,8}}
+    ));
+    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+      new int[][] {{1,2},{2,3},{3,4},{4,5}}
+    ));
+    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+      new int[][] {{3,9},{7,12},{3,8},{6,8},{9,10},{2,9},{0,9},{3,9},{0,6},{2,8}}
+    ));
+    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+      new int[][] {{9,12},{1,10},{4,11},{8,12},{3,9},{6,9},{6,7}}
+    ));
   }
 }
