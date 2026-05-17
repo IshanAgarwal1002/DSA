@@ -1403,6 +1403,71 @@ class Solution {
     return count;
   }
 
+  // Leetcode 452: https://leetcode.com/problems/gas-station/
+  // Solution 1: brute force
+  // Time: O(N^2), Space: O(1)
+  public static int canCompleteCircuit(int[] gas, int[] cost) {
+    int n = gas.length;
+    for (int i = 0; i < n; i++) {
+      int totalFuel = 0;
+      int j = i, countVisited = 0;
+      
+      while (countVisited < n) {
+        totalFuel += gas[j % n] - cost[j % n];
+        
+        if (totalFuel < 0)  break;
+        
+        countVisited++;
+        j++;
+      }
+
+      if (countVisited == n && totalFuel >= 0)  return i;
+    }
+    
+    return -1;
+  }
+
+  // Leetcode 452: https://leetcode.com/problems/gas-station/
+  // Solution 2: https://leetcode.com/problems/gas-station/solutions/1706142/javacpython-an-explanation-that-ever-exi-ctwl/
+  // Time: O(N), Space: O(1)
+  public static int canCompleteCircuit2(int[] gas, int[] cost) {
+    int n = gas.length;
+    int start = 0, totalSurplus = 0, surplus = 0;
+    for (int i = 0; i < n; i++) {
+      totalSurplus += gas[i] - cost[i];
+      surplus += gas[i] - cost[i];
+
+      // tank becomes -ve
+      if (surplus < 0) {
+        surplus = 0;
+        start = i+1;
+      }
+    }
+    
+    return (totalSurplus < 0) ? -1 : start;
+  }
+
+  // Leetcode 452: https://leetcode.com/problems/sum-of-subsequence-widths/
+  // Solution 1: Brute force - Create all subsequences and traverse each of them. Recursion stack and temporary array space used.
+  // Time: O(N*(2^N)), Space: O(N)
+
+  // Leetcode 452: https://leetcode.com/problems/sum-of-subsequence-widths/
+  // Solution 2: https://leetcode.com/problems/sum-of-subsequence-widths/solutions/161267/javacpython-sort-and-one-pass-by-lee215-i9bt/
+  // Find individual contribution of each number. Check how many times its max (added) and how many times its min (subtracted) within a subsequence
+  // Time: O(N*log(N) + N), Space: O(1)
+  public static int sumSubseqWidths(int[] nums) {
+    Arrays.sort(nums);
+
+    int n = nums.length;
+    long result = 0, mod = (long)1e9 + 7, c = 1;
+    for (int i=0; i<n; i++, c = c * 2 % mod) {
+      result += (nums[i] * c - nums[n-i-1] * c);
+      result %= mod;
+    }
+
+    return (int)(result % mod);
+  }
+
   public static void main(String[] args) {
     // Utility.measureTime("isLongPressedName", () -> isLongPressedName("saeed", "ssaaedd"));
 
@@ -1553,20 +1618,29 @@ class Solution {
     //   new int[] {4,8}
     // ));
     
-    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
-      new int[][] {{10,16},{2,8},{1,6},{7,12}}
+    // Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+    //   new int[][] {{10,16},{2,8},{1,6},{7,12}}
+    // ));
+    // Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+    //   new int[][] {{1,2},{3,4},{5,6},{7,8}}
+    // ));
+    // Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+    //   new int[][] {{1,2},{2,3},{3,4},{4,5}}
+    // ));
+    // Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+    //   new int[][] {{3,9},{7,12},{3,8},{6,8},{9,10},{2,9},{0,9},{3,9},{0,6},{2,8}}
+    // ));
+    // Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
+    //   new int[][] {{9,12},{1,10},{4,11},{8,12},{3,9},{6,9},{6,7}}
+    // ));
+
+    // Utility.measureTime("canCompleteCircuit", () -> canCompleteCircuit(
+    //   new int[] {1,2,3,4,5},
+    //   new int[] {3,4,5,1,2}
+    // ));
+
+    Utility.measureTime("sumSubseqWidths", () -> sumSubseqWidths(
+      new int[] {2,1,3}
     ));
-    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
-      new int[][] {{1,2},{3,4},{5,6},{7,8}}
-    ));
-    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
-      new int[][] {{1,2},{2,3},{3,4},{4,5}}
-    ));
-    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
-      new int[][] {{3,9},{7,12},{3,8},{6,8},{9,10},{2,9},{0,9},{3,9},{0,6},{2,8}}
-    ));
-    Utility.measureTime("findMinArrowShots", () -> findMinArrowShots(
-      new int[][] {{9,12},{1,10},{4,11},{8,12},{3,9},{6,9},{6,7}}
-    ));
-  }
+  } 
 }
