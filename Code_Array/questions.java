@@ -1468,6 +1468,67 @@ class Solution {
     return (int)(result % mod);
   }
 
+  // Asked in Salesforce OA
+  // Leetcode 443: https://leetcode.com/problems/string-compression
+  // Solution 1: 
+  // Time: O(N), Space: O(1)
+  public static int compressHelper(char[] chars, int startIndex, char currentCharacter, int groupSize) {
+    chars[startIndex++] = currentCharacter;
+    if (groupSize > 1) {
+      String groupSizeString = String.valueOf(groupSize);
+      for (int i=0; i < groupSizeString.length(); i++) {
+        chars[startIndex++] = groupSizeString.charAt(i);
+      }
+    }
+
+    return startIndex;
+  }
+
+  public static int compress(char[] chars) {
+    if (chars == null || chars.length == 0) {
+      return 0;
+    }
+
+    int currIndex = 0, groupSize = 1;
+    char currCharacter = chars[0];
+    
+    for (int i=1; i < chars.length; i++) {
+      if (chars[i - 1] == chars[i]) {
+        ++groupSize;
+      } else {
+        currIndex = compressHelper(chars, currIndex, currCharacter, groupSize);
+        currCharacter = chars[i];
+        groupSize = 1;
+      }
+    }
+
+    // for last group
+    currIndex = compressHelper(chars, currIndex, currCharacter, groupSize);
+
+    return currIndex;
+  }
+
+  // Asked in Salesforce OA
+  // Leetcode 2380: https://leetcode.com/problems/time-needed-to-rearrange-a-binary-string
+  // Solution 1: https://leetcode.com/problems/time-needed-to-rearrange-a-binary-string/solutions/2454262/dp-vs-brute-force-by-votrubac-h7qu/
+  // Time: O(N), Space: O(1)
+  public static int secondsToRemoveOccurrences(String s) {
+    if (s == null || s.isEmpty()) {
+      return 0;
+    }
+
+    int countZero = 0, n = s.length(), time = 0;
+    for (int i=0; i < n; i++) {
+      if (s.charAt(i) == '0') {
+        ++countZero;
+      } else if (countZero > 0) {
+        time = Math.max(countZero, time + 1);
+      }
+    }
+
+    return time;
+  }
+
   public static void main(String[] args) {
     // Utility.measureTime("isLongPressedName", () -> isLongPressedName("saeed", "ssaaedd"));
 
@@ -1639,8 +1700,20 @@ class Solution {
     //   new int[] {3,4,5,1,2}
     // ));
 
-    Utility.measureTime("sumSubseqWidths", () -> sumSubseqWidths(
-      new int[] {2,1,3}
+    // Utility.measureTime("sumSubseqWidths", () -> sumSubseqWidths(
+    //   new int[] {2,1,3}
+    // ));
+
+    Utility.measureTime("compress", () -> compress(
+      new char[] {'a','a','b','b','c','c','c'}
+    ));
+
+    Utility.measureTime("compress", () -> compress(
+      new char[] {'a'}
+    ));
+
+    Utility.measureTime("compress", () -> compress(
+      new char[] {'a','b','b','b','b','b','b','b','b','b','b','b','b'}
     ));
   } 
 }
